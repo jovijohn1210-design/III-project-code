@@ -1,0 +1,81 @@
+#include <Keypad.h>
+#include <LiquidCrystal.h>
+
+LiquidCrystal lcd(7, 6, 5, 4, 3, 2);
+
+const int relay = 10;
+
+const byte ROWS = 4;
+const byte COLS = 3;
+
+char keys[ROWS][COLS] = {
+  {'1','2','3'},
+  {'4','5','6'},
+  {'7','8','9'},
+  {'*','0','#'}
+};
+
+byte rowPins[ROWS] = {A0, A1, A2, A3};
+byte colPins[COLS] = {A4, A5, 8};
+
+Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
+
+String password = "1234";
+String input = "";
+
+void setup()
+{
+  pinMode(relay, OUTPUT);
+  digitalWrite(relay, LOW);
+
+  lcd.begin(16,2);
+  lcd.print("Smart Delivery");
+  delay(2000);
+  lcd.clear();
+  lcd.print("Enter Password");
+}
+
+void loop()
+{
+  char key = keypad.getKey();
+
+  if (key)
+  {
+    lcd.setCursor(0,1);
+    lcd.print(input);
+
+    if(key == '#')
+    {
+      if(input == password)
+      {
+        lcd.clear();
+        lcd.print("Access Granted");
+        digitalWrite(relay, HIGH);
+        delay(5000);
+        digitalWrite(relay, LOW);
+      }
+      else
+      {
+        lcd.clear();
+        lcd.print("Wrong Password");
+        delay(2000);
+      }
+
+      input="";
+      lcd.clear();
+      lcd.print("Enter Password");
+    }
+
+    else if(key == '*')
+    {
+      input="";
+      lcd.clear();
+      lcd.print("Enter Password");
+    }
+
+    else
+    {
+      input += key;
+    }
+  }
+}
